@@ -1,15 +1,27 @@
+/*******************************************************************************
+ * Includes
+ ******************************************************************************/
+#include <Arduino.h>
 #include <Servo.h>
+#include "Claw.h"
 
 /*******************************************************************************
- * Definitions and Globals
+ * Pins
  ******************************************************************************/
-Servo servo;
+
+/*Servo*/
 #define SERVO_PIN 9
 
-#define US_VCC_PIN 13
+/* Ultrasonic Sensor*/
 #define US_TRIGGER_PIN 12
+#define US_VCC_PIN 13
 #define US_ECHO_PIN 11
 #define US_GROUND_PIN 10
+
+/*******************************************************************************
+ * Other definitions, globals, and objects
+ ******************************************************************************/
+Servo servo;
 #define US_MAX_DISTANCE 20
 
 /*change DEBUG MODE to 0 for off and 1 for on*/
@@ -17,15 +29,14 @@ Servo servo;
 #define SERIAL_BAUDRATE 9600
 
 /*******************************************************************************
- * Prototypes
+ * Function Prototypes
  ******************************************************************************/
-
 double senseDistance(void);
 
 /*******************************************************************************
  * Arduino Setup
  ******************************************************************************/
-void setup(){
+void Claw::setup(){
     /*Servo setup*/
     servo.attach(SERVO_PIN);
 
@@ -45,9 +56,9 @@ void setup(){
 }
 
 /*******************************************************************************
- * Main Loop
+ * Arduino Loop
  ******************************************************************************/
-void loop(){
+void Claw::loop(){
     /*sense distance*/
     double distance =senseDistance();
 
@@ -57,8 +68,8 @@ void loop(){
 
     /*debug mode stuff, if applicable*/
     if(DEBUG_MODE){
-        Serial.print("Distance: ");
-        Serial.println(distance);
+        Serial.print("Distance: fart");
+        //Serial.println(distance);
         Serial.print("Servo Angle: ");
         Serial.println(servoAngle);
     }
@@ -69,7 +80,7 @@ void loop(){
 }
 
 /*******************************************************************************
- * Implementations 
+ * Function Implementations 
  ******************************************************************************/
 
 /**
@@ -91,5 +102,4 @@ double senseDistance(void){
     }
 
     return distance;
-
 }

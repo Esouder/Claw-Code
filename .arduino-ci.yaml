@@ -1,5 +1,0 @@
-
-compile:
-  libraries: ~
-  platforms:
-    - uno

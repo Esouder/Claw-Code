@@ -1,26 +1,43 @@
+/*******************************************************************************
+ * Includes
+ ******************************************************************************/
+
 #include <Servo.h>
 
 /*******************************************************************************
- * Definitions and Globals
+ * Pinouts
  ******************************************************************************/
-Servo servo;
+
+/*Servo Pins*/
 #define SERVO_PIN 9
 
+/*Ultrasonic Sensor Pins*/
 #define US_VCC_PIN 13
 #define US_TRIGGER_PIN 12
 #define US_ECHO_PIN 11
 #define US_GROUND_PIN 10
+
+
+/*******************************************************************************
+ * Definitions, Objects, and Globals
+ ******************************************************************************/
+
+Servo servo;
 #define US_MAX_DISTANCE 20
+#define SERVO_MAX_ANGLE 180
+#define SERVO_MIN_ANGLE 0
 
 /*change DEBUG MODE to 0 for off and 1 for on*/
 #define DEBUG_MODE 1
 #define SERIAL_BAUDRATE 9600
 
 /*******************************************************************************
- * Prototypes
+ * Function Prototypes
  ******************************************************************************/
 
 double senseDistance(void);
+
+void servoActuate(double angle);
 
 /*******************************************************************************
  * Arduino Setup
@@ -53,7 +70,7 @@ void loop(){
 
     /*calc and actuate servo*/
     double servoAngle = distance/20*180;
-    servo.write(servoAngle);
+    servoActuate(servoAngle);
 
     /*debug mode stuff, if applicable*/
     if(DEBUG_MODE){
@@ -69,7 +86,7 @@ void loop(){
 }
 
 /*******************************************************************************
- * Implementations 
+ * Function Implementations 
  ******************************************************************************/
 
 /**
@@ -92,4 +109,19 @@ double senseDistance(void){
 
     return distance;
 
+}
+
+/**
+ * Moves the servo to the specified angle within the defined range
+ * @param angle the angle the servo is to be set to. 
+ */
+void servoActuate(double angle){
+    if(angle<SERVO_MIN_ANGLE){
+        angle=SERVO_MIN_ANGLE;
+    }
+    else if(angle>SERVO_MAX_ANGLE){
+        angle=SERVO_MAX_ANGLE;
+    }
+
+    servo.write(angle);
 }

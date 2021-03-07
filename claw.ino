@@ -22,14 +22,30 @@
  * Definitions, Objects, and Globals
  ******************************************************************************/
 
+enum clawState_e{
+    open,
+    closed
+};
+
+#define TRUE 1
+#define FALSE 0
+
 Servo servo;
-#define US_MAX_DISTANCE 20
-#define SERVO_MAX_ANGLE 180
-#define SERVO_MIN_ANGLE 0
+#define US_MAX_DISTANCE 20 //max distance for the distance sensor to output
+#define SERVO_MAX_ANGLE 180 //max angle for the servo to turn to
+#define SERVO_MIN_ANGLE 50 //min angle for the servo to turn to
+#define SERVO_OPEN 180 //angle of the servo when the claw is open
+#define SERVO_CLOSED 50 //angle of the servo when the claw is closed
+#define US_TRIGGER_ALT 0 // altitude to trigger opening/closing the claw
 
 /*change DEBUG MODE to 0 for off and 1 for on*/
 #define DEBUG_MODE 1
 #define SERIAL_BAUDRATE 9600
+
+clawState_e clawState = open;
+double servoAngle = SERVO_OPEN;
+
+int beenElevated = FALSE;
 
 /*******************************************************************************
  * Function Prototypes
@@ -68,9 +84,31 @@ void loop(){
     /*sense distance*/
     double distance =senseDistance();
 
-    /*calc and actuate servo*/
-    double servoAngle = distance/20*180;
+    
+    if(distance <=US_TRIGGER_ALT){
+        if(clawState==closed&&beenElevated ==TRUE){
+            clawState=open;
+            beenElevated = FALSE;
+        }
+        else if(clawState ==open&&beenElevated==TRUE){
+            clawState=closed;
+            beenElevated=FALSE;
+        }
+    }
+    else{
+        beenElevated = TRUE;
+    }
+
+    if(clawState==open){
+        servoAngle=SERVO_OPEN;
+    }
+    else if (clawState==closed){
+        servoAngle = SERVO_CLOSED;
+    }
+
+    /*actuate servo*/
     servoActuate(servoAngle);
+    
 
     /*debug mode stuff, if applicable*/
     if(DEBUG_MODE){
@@ -78,6 +116,8 @@ void loop(){
         Serial.println(distance);
         Serial.print("Servo Angle: ");
         Serial.println(servoAngle);
+        Serial.print("Claw State: ");
+        Serial.println(clawState);
     }
     
     /*main loop execution delay*/
@@ -103,7 +143,10 @@ double senseDistance(void){
     double duration = pulseIn(US_ECHO_PIN,HIGH);
     double distance = duration*0.034/2;
     
-    if(distance>US_MAX_DISTANCE){
+    if(distance>=500){
+        distance=0;
+    }
+    else if(distance>US_MAX_DISTANCE){
         distance = US_MAX_DISTANCE;
     }
 
